@@ -1,0 +1,32 @@
+alertmanager:
+  enabled: false
+
+prometheus-pushgateway:
+  enabled: false
+
+prometheus-node-exporter:
+  enabled: true
+
+kube-state-metrics:
+  enabled: true  # we installed it separately
+
+server:
+  retention: "2h"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+  service:
+    ## @param server.service.type Prometheus service type
+    ##
+    type: ClusterIP
+
+extraScrapeConfigs: |-
+  - job_name: vikunja-backend
+    metrics_path: /api/v1/metrics
+    static_configs:
+      - targets:
+          - vikunja-backend.vikunja.svc.cluster.local:3456

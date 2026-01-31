@@ -1,0 +1,45 @@
+image:
+  registry: docker.io
+  repository: bitnamilegacy/keycloak
+  tag: 26.3.3
+
+postgresql:
+  enabled: true
+  global.security.allowInsecureImages: true
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
+    tag: 14.4.0-debian-11-r4
+    pullPolicy: IfNotPresent
+  auth:
+    username: keycloak
+    password: keycloak
+    database: keycloak
+
+auth:
+  adminUser: admin
+  adminPassword: admin
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+  hostname: keycloak.local
+  ingressClassName: nginx
+
+proxy: edge
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+
+extraEnvVars:
+  - name: KC_HOSTNAME
+    value: keycloak.local
+  - name: KC_PROXY
+    value: edge 
+  - name: KC_HOSTNAME_STRICT
+    value: "false"
+  - name: KC_HTTP_ENABLED
+    value: "true"

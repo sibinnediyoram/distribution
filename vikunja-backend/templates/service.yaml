@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vikunja-backend.fullname" . }}
+  labels:
+    {{- include "vikunja-backend.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    # {{- include "vikunja-backend.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: {{ .Release.Name }}

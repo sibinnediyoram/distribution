@@ -1,0 +1,44 @@
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hostname: grafana.local
+  path: /
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+
+image:
+  registry: docker.io
+  repository: bitnamilegacy/grafana
+  tag: 12.1.1-debian-12-r1
+
+service:
+  type: ClusterIP
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 256Mi
+
+persistence:
+  enabled: false
+
+dashboardsProvider:
+  enabled: true
+
+dashboardsConfigMaps:
+  - configMapName: vikunja-dashboards
+    folderName: "Vikunja"
+    fileName: vikunja-backend.json
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-server.monitoring.svc.cluster.local
+        isDefault: true

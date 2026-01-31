@@ -1,0 +1,173 @@
+# Default values for vikunja-backend.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+#replicaCount: 1
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: vikunja/api
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.21.0"
+
+# This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: "vikunja-backend"
+fullnameOverride: "vikunja-backend"
+
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# This is for setting Kubernetes Annotations to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 3456
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  className: "nginx"
+  hosts:
+    - host: "vikunja.local"
+      paths:
+        - path: "/api/v1"
+          pathType: Prefix
+        
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+livenessProbe:
+  httpGet:
+    path: /api/v1/info
+    port: 3456
+  initialDelaySeconds: 5
+  timeoutSeconds: 1
+  periodSeconds: 10
+  successThreshold: 1
+  failureThreshold: 5
+
+readinessProbe:
+  httpGet:
+    path: /api/v1/info
+    port: 3456
+  initialDelaySeconds: 5
+  timeoutSeconds: 1
+  periodSeconds: 10
+  successThreshold: 1
+  failureThreshold: 5
+
+# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+
+persistence:
+  enabled: true
+  storageClass: "standard"  # Change this to your desired storage class
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+
+volumes:
+  - name: vikunja-backend-pvc
+    persistentVolumeClaim:
+      claimName: vikunja-backend-pvc
+  - name: addonconfig
+    configMap:
+      name: vikunja-config
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:
+  - name: vikunja-backend-pvc
+    mountPath: "/app/vikunja/files"
+  - name: addonconfig
+    mountPath: /etc/vikunja/config.yml
+    subPath: config.yml
+configs:
+  addonProperties: "config/addonconfig.yaml"
+
+hostAliases:
+  - ip: "10.96.44.120"
+    hostnames:
+      - keycloak.local
+
+env:
+  - name: VIKUNJA_DATABASE_NAME
+    value: "vikunja"
+  - name: VIKUNJA_DATABASE_PASSWORD
+    value: "vikunja"
+  - name: VIKUNJA_DATABASE_TYPE
+    value: "postgres"
+  - name: VIKUNJA_DATABASE_USER
+    value: "vikunja"
+  - name: VIKUNJA_TYPESENSE_ENABLED
+    value: "false"
+  - name: VIKUNJA_SERVICE_JWTSECRET
+    value: "myVeryComplexJWTSecret"
+  - name: VIKUNJA_DATABASE_HOST
+    value: "vikunja-db-postgresql.vikunja.svc.cluster.local"
+  - name: VIKUNJA_METRICS_ENABLED
+    value: "true"

@@ -1,0 +1,20 @@
+image:
+  registry: docker.io
+  repository: bitnamilegacy/postgresql
+  tag: 14.4.0-debian-11-r4
+  pullPolicy: IfNotPresent
+
+auth:
+  username: vikunja
+  password: vikunja
+  database: vikunja
+
+primary:
+  persistence:
+    enabled: true
+    size: 5Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi

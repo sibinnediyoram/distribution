@@ -1,0 +1,5 @@
+{{- $root := . }}
+{{- range $path, $bytes := .Files.Glob .Values.configs.addonProperties -}}
+---
+{{ $root.Files.Get $path }}
+{{- end -}}

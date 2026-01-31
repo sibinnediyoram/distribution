@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vikunja-config
+data:
+  config.yml: |
+    service:
+      frontendUrl: http://vikunja.local
+    auth:
+      local:
+        enabled: true
+      openid:
+        enabled: true
+        redirecturl: http://vikunja.local/auth/openid/
+        providers:
+          - name: Keycloak
+            authurl: http://keycloak.local/realms/vikunja
+            clientid: vikunja-client
+            clientsecret: s6P1MuZ7PkcWpnsqQb9EtsazVwaYShuO
+            scope: openid profile email
