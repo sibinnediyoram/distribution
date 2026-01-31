@@ -70,10 +70,13 @@ This avoids image pull failures without modifying upstream Helm charts.
 ./deploy.sh
 
 #To test hpa
+
 kubectl run loadgen -n vikunja --rm -it --image=busybox -- sh
 
 #then from inside the loadgen pod run below command:
+
 while true; do
   wget -q -O- http://vikunja-backend:3456/api/v1/info
 done
+
 kubectl exec -n vikunja deploy/vikunja-backend -- sh -c "while true; do :; done"
