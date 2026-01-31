@@ -65,8 +65,8 @@ Some Bitnami Helm charts reference container images that have been moved to
 
 This avoids image pull failures without modifying upstream Helm charts.
 
-### Steps to deploy whole setup in local mac/linux machine
-## clone this repo and run "chmod +x deploy.sh", then run this bash script
+## Steps to deploy whole setup in local mac/linux machine
+### clone this repo and run "chmod +x deploy.sh", then run this bash script
 ./deploy.sh
 
 #To test hpa
