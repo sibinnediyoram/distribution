@@ -79,4 +79,6 @@ while true; do
   wget -q -O- http://vikunja-backend:3456/api/v1/info
 done
 
+OR
+
 kubectl exec -n vikunja deploy/vikunja-backend -- sh -c "while true; do :; done"
